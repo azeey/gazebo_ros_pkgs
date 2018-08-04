@@ -42,6 +42,8 @@
 #include <gazebo_ros_control/default_robot_hw_sim.h>
 #include <urdf/model.h>
 
+#include <iostream>
+
 
 namespace
 {
@@ -335,12 +337,24 @@ void DefaultRobotHWSim::writeSim(ros::Time time, ros::Duration period)
           switch (joint_types_[j])
           {
             case urdf::Joint::REVOLUTE:
-              angles::shortest_angular_distance_with_limits(joint_position_[j],
-                                                            joint_position_command_[j],
-                                                            joint_lower_limits_[j],
-                                                            joint_upper_limits_[j],
-                                                            error);
+              // angles::shortest_angular_distance_with_limits(joint_position_[j],
+              //                                               joint_position_command_[j],
+              //                                               joint_lower_limits_[j],
+              //                                               joint_upper_limits_[j],
+              //                                               error);
+              {
+
+                const double clamped_command = clamp(joint_position_command_[j], joint_lower_limits_[j], joint_upper_limits_[j]);
+                error = clamped_command - joint_position_[j];
+                std::cout << j << " " << joint_position_[j] << " " 
+                  << joint_position_command_[j] << " "
+                  << joint_lower_limits_[j] << " "
+                  << joint_upper_limits_[j] << " "
+                  << error
+                  << std::endl;
+
               break;
+              }
             case urdf::Joint::CONTINUOUS:
               error = angles::shortest_angular_distance(joint_position_[j],
                                                         joint_position_command_[j]);
