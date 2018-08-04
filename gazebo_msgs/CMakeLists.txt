@@ -21,6 +21,7 @@ add_message_files(
   ModelStates.msg
   ODEJointProperties.msg
   ODEPhysics.msg
+  BulletPhysics.msg
   WorldState.msg
   )
 

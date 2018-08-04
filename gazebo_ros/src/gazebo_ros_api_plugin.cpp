@@ -1353,7 +1353,6 @@ bool GazeboRosApiPlugin::setPhysicsProperties(gazebo_msgs::SetPhysicsProperties:
 
   if (pe->GetType() == "ode")
   {
-    // stuff only works in ODE right now
     pe->SetAutoDisableFlag(req.ode_config.auto_disable_bodies);
     pe->SetParam("precon_iters", int(req.ode_config.sor_pgs_precon_iters));
     pe->SetParam("iters", int(req.ode_config.sor_pgs_iters));
@@ -1370,6 +1369,26 @@ bool GazeboRosApiPlugin::setPhysicsProperties(gazebo_msgs::SetPhysicsProperties:
 
     res.success = true;
     res.status_message = "physics engine updated";
+  } 
+  else if (pe->GetType() == "bullet")
+  {
+    pe->SetParam("iters", int(req.bullet_config.sor_pgs_iters));
+    pe->SetParam("sor", req.bullet_config.sor_pgs_w);
+    pe->SetParam("cfm", req.bullet_config.cfm);
+    pe->SetParam("erp", req.bullet_config.erp);
+    pe->SetParam("contact_surface_layer",
+        req.bullet_config.contact_surface_layer);
+    pe->SetParam("split_impulse",
+        req.bullet_config.split_impulse);
+    pe->SetParam("split_impulse_penetration_threshold",
+        req.bullet_config.split_impulse_penetration_threshold);
+    pe->SetParam("max_contacts", int(req.bullet_config.max_contacts));
+
+    world_->SetPaused(is_paused);
+
+    res.success = true;
+    res.status_message = "physics engine updated";
+
   }
   else
   {
@@ -1422,6 +1441,24 @@ bool GazeboRosApiPlugin::getPhysicsProperties(gazebo_msgs::GetPhysicsProperties:
 
     res.success = true;
     res.status_message = "GetPhysicsProperties: got properties";
+  }
+  else if (pe->GetType() == "bullet")
+  {
+    res.bullet_config.sor_pgs_iters = boost::any_cast<int>(pe->GetParam("iters"));
+    res.bullet_config.sor_pgs_w = boost::any_cast<double>(pe->GetParam("sor"));
+    res.bullet_config.cfm = boost::any_cast<double>(pe->GetParam("cfm"));
+    res.bullet_config.erp = boost::any_cast<double>(pe->GetParam("erp"));
+    res.bullet_config.contact_surface_layer = boost::any_cast<double>(
+        pe->GetParam("contact_surface_layer"));
+    res.bullet_config.split_impulse = boost::any_cast<bool>(
+        pe->GetParam("split_impulse"));
+    res.bullet_config.split_impulse_penetration_threshold = boost::any_cast<double>(pe->GetParam("split_impulse_penetration_threshold"));
+    res.bullet_config.max_contacts = boost::any_cast<int>(
+        pe->GetParam("max_contacts"));
+
+    res.success = true;
+    res.status_message = "GetPhysicsProperties: got properties";
+
   }
   else
   {
